@@ -8,6 +8,7 @@ import { TokenService } from './utils/token-service';
 import { AuthorizeMapperProfile } from './mappers/authorize.mapper-profile';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CookieTokenService } from './utils/cookie-service';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CookieTokenService } from './utils/cookie-service';
     AuthorizeService,
     TokenService,
     CookieTokenService,
+    JwtStrategy,
   ],
 })
 export class AuthorizeModule {}

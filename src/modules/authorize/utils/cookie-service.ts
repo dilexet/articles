@@ -45,4 +45,12 @@ export class CookieTokenService {
 
     return req.cookies[jwtRefreshCookieName] as string;
   }
+
+  getAccessTokenFromCookie(req: Request): string | null {
+    const jwtAccessCookieName: string = this.config.get<string>(
+      'JWT_ACCESS_COOKIE_NAME',
+    ) as string;
+
+    return req.cookies[jwtAccessCookieName] as string;
+  }
 }

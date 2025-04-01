@@ -58,7 +58,7 @@ export class AuthorizeController {
 
   @ApiOperation({ summary: 'User registration' })
   @ApiBody({ type: RegisterDto })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Login successful' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'User registered successfully' })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid credentials',
