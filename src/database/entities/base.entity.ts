@@ -3,7 +3,7 @@ import { AutoMap } from '@automapper/classes';
 
 @Entity()
 export class BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  @AutoMap()
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    @AutoMap()
+    id: string;
 }
