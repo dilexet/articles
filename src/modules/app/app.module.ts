@@ -8,16 +8,18 @@ import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { AuthorizeModule } from '../authorize/authorize.module';
 import { ArticleManagementModule } from '../article-management/article-management.module';
+import { ArticleModule } from '../articles/article.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
-    AutomapperModule.forRoot({ strategyInitializer: classes() }),
-    AuthorizeModule,
-    ArticleManagementModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
+        AutomapperModule.forRoot({ strategyInitializer: classes() }),
+        AuthorizeModule,
+        ArticleManagementModule,
+        ArticleModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule {}

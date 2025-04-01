@@ -31,7 +31,7 @@ import { JwtAuthGuard } from '../authorize/guards/jwt-auth.guard';
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @ApiTags('ArticlesManagement')
-@Controller('article-management')
+@Controller('articles-management')
 export class ArticleManagementController {
   constructor(private articleManagementService: ArticleManagementService) {}
 
