@@ -7,6 +7,7 @@ import { TypeOrmConfigService } from '../../database';
 import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { AuthorizeModule } from '../authorize/authorize.module';
+import { ArticleManagementModule } from '../article-management/article-management.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthorizeModule } from '../authorize/authorize.module';
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     AutomapperModule.forRoot({ strategyInitializer: classes() }),
     AuthorizeModule,
+    ArticleManagementModule,
   ],
   controllers: [AppController],
   providers: [AppService],
