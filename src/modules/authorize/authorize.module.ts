@@ -11,28 +11,21 @@ import { CookieTokenService } from './utils/cookie-service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
-  imports: [
-    ConfigModule,
-    TypeOrmModule.forFeature([UserEntity]),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_ACCESS_SECRET'),
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
-        },
-      }),
-    }),
-  ],
-  controllers: [AuthorizeController],
-  providers: [
-    AuthorizeMapperProfile,
-    JwtService,
-    AuthorizeService,
-    TokenService,
-    CookieTokenService,
-    JwtStrategy,
-  ],
+    imports: [
+        ConfigModule,
+        TypeOrmModule.forFeature([UserEntity]),
+        JwtModule.registerAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                secret: configService.get<string>('JWT_ACCESS_SECRET'),
+                signOptions: {
+                    expiresIn: configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
+                },
+            }),
+        }),
+    ],
+    controllers: [AuthorizeController],
+    providers: [AuthorizeMapperProfile, JwtService, AuthorizeService, TokenService, CookieTokenService, JwtStrategy],
 })
 export class AuthorizeModule {}

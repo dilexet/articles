@@ -4,45 +4,45 @@ import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ArticleDto {
-  @AutoMap()
-  id: string;
+    @AutoMap()
+    id: string;
 
-  @AutoMap()
-  name: string;
+    @AutoMap()
+    name: string;
 
-  @AutoMap()
-  description: string;
+    @AutoMap()
+    description: string;
 
-  @AutoMap()
-  createdDate: string;
+    @AutoMap()
+    createdDate: string;
 
-  @AutoMap()
-  updatedDate: string;
+    @AutoMap()
+    updatedDate: string;
 
-  @AutoMap()
-  author: AuthorDto;
+    @AutoMap()
+    author: AuthorDto;
 }
 
 export class ArticleDeletedDto {
-  id: string;
+    id: string;
 }
 
 export class ArticleCreateDto {
-  @ApiProperty({
-    type: String,
-    description: 'Article name',
-  })
-  @AutoMap()
-  @IsNotEmpty()
-  name: string;
+    @ApiProperty({
+        type: String,
+        description: 'Article name',
+    })
+    @AutoMap()
+    @IsNotEmpty()
+    name: string;
 
-  @ApiProperty({
-    type: String,
-    description: 'Article description',
-  })
-  @AutoMap()
-  @IsNotEmpty()
-  description: string;
+    @ApiProperty({
+        type: String,
+        description: 'Article description',
+    })
+    @AutoMap()
+    @IsNotEmpty()
+    description: string;
 }
 
 export class ArticleUpdateDto extends ArticleCreateDto {}

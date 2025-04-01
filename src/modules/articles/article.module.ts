@@ -7,11 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { ArticleMapperProfile } from './mappers/article.mapper-profile';
 
 @Module({
-  imports: [
-    ConfigModule,
-    TypeOrmModule.forFeature([UserEntity, ArticleEntity]),
-  ],
-  controllers: [ArticleController],
-  providers: [ArticleMapperProfile, ArticleService],
+    imports: [ConfigModule, TypeOrmModule.forFeature([UserEntity, ArticleEntity])],
+    controllers: [ArticleController],
+    providers: [ArticleMapperProfile, ArticleService],
 })
 export class ArticleModule {}
