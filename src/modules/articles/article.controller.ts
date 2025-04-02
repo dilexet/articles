@@ -1,8 +1,10 @@
-import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ArticleService } from './article.service';
 import { ArticleDto } from './dto/article.dto';
+import { IArticleFilterParams, IArticleSortParams, IPaginationParams } from './types/filters.type';
+import { PaginatedResult } from '../../types/pagination.type';
 
 @ApiTags('Articles')
 @Controller('articles')
@@ -14,8 +16,7 @@ export class ArticleController {
     })
     @ApiResponse({
         status: HttpStatus.OK,
-        type: ArticleDto,
-        isArray: true,
+        type: PaginatedResult<ArticleDto>,
         description: 'Articles got successfully',
     })
     @ApiResponse({
@@ -26,10 +27,25 @@ export class ArticleController {
         status: HttpStatus.NOT_FOUND,
         description: 'Articles wan not found',
     })
+    @ApiQuery({ name: 'name', required: false, type: String, description: 'Filter by article name' })
+    @ApiQuery({ name: 'description', required: false, type: String, description: 'Filter by article description' })
+    @ApiQuery({ name: 'createdDateFrom', required: false, type: String, description: 'Filter articles created after this date (YYYY-MM-DD)' })
+    @ApiQuery({ name: 'createdDateTo', required: false, type: String, description: 'Filter articles created before this date (YYYY-MM-DD)' })
+    @ApiQuery({ name: 'updatedDateFrom', required: false, type: String, description: 'Filter articles updated after this date (YYYY-MM-DD)' })
+    @ApiQuery({ name: 'updatedDateTo', required: false, type: String, description: 'Filter articles updated before this date (YYYY-MM-DD)' })
+    @ApiQuery({ name: 'author', required: false, type: String, description: 'Filter articles by author name' })
+    @ApiQuery({ name: 'orderByName', required: false, enum: ['ASC', 'DESC'], description: 'Sort articles by name' })
+    @ApiQuery({ name: 'orderByCreatedDate', required: false, enum: ['ASC', 'DESC'], description: 'Sort articles by createdDate' })
+    @ApiQuery({ name: 'orderByUpdatedDate', required: false, enum: ['ASC', 'DESC'], description: 'Sort articles by updatedDate' })
+    @ApiQuery({ name: 'page', required: true, type: Number, description: 'Page number for pagination' })
+    @ApiQuery({ name: 'limit', required: true, type: Number, description: 'Number of articles per page' })
     @Get()
-    async getArticlesByFilter(@Res() res: Response) {
+    async getArticlesByFilter(
+        @Query() queryParams: IArticleFilterParams & IArticleSortParams & IPaginationParams,
+        @Res() res: Response,
+    ) {
         try {
-            const result = await this.articleService.getArticlesByFilterAsync();
+            const result = await this.articleService.getArticlesByFilterAsync(queryParams);
 
             return res.status(HttpStatus.OK).json(result);
         } catch (error) {
