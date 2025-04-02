@@ -1,9 +1,23 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Request, Res, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpStatus,
+    Param,
+    Post,
+    Put,
+    Query,
+    Request,
+    Res,
+    UseGuards,
+} from '@nestjs/common';
 import { Response } from 'express';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ArticleManagementService } from './article-management.service';
 import { ArticleCreateDto, ArticleDeletedDto, ArticleDto, ArticleUpdateDto } from './dto/article.dto';
 import { JwtAuthGuard } from '../authorize/guards/jwt-auth.guard';
+import { IArticleFilterParams, IArticleSortParams, IPaginationParams } from './types/filters.type';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -31,12 +45,53 @@ export class ArticleManagementController {
         status: HttpStatus.UNAUTHORIZED,
         description: 'Invalid credentials',
     })
-    @ApiResponse({
-        status: HttpStatus.NOT_FOUND,
-        description: 'Article wan not found',
+    @ApiQuery({ name: 'name', required: false, type: String, description: 'Filter by article name' })
+    @ApiQuery({ name: 'description', required: false, type: String, description: 'Filter by article description' })
+    @ApiQuery({
+        name: 'createdDateFrom',
+        required: false,
+        type: String,
+        description: 'Filter articles created after this date (YYYY-MM-DD)',
     })
+    @ApiQuery({
+        name: 'createdDateTo',
+        required: false,
+        type: String,
+        description: 'Filter articles created before this date (YYYY-MM-DD)',
+    })
+    @ApiQuery({
+        name: 'updatedDateFrom',
+        required: false,
+        type: String,
+        description: 'Filter articles updated after this date (YYYY-MM-DD)',
+    })
+    @ApiQuery({
+        name: 'updatedDateTo',
+        required: false,
+        type: String,
+        description: 'Filter articles updated before this date (YYYY-MM-DD)',
+    })
+    @ApiQuery({ name: 'orderByName', required: false, enum: ['ASC', 'DESC'], description: 'Sort articles by name' })
+    @ApiQuery({
+        name: 'orderByCreatedDate',
+        required: false,
+        enum: ['ASC', 'DESC'],
+        description: 'Sort articles by createdDate',
+    })
+    @ApiQuery({
+        name: 'orderByUpdatedDate',
+        required: false,
+        enum: ['ASC', 'DESC'],
+        description: 'Sort articles by updatedDate',
+    })
+    @ApiQuery({ name: 'page', required: true, type: Number, description: 'Page number for pagination' })
+    @ApiQuery({ name: 'limit', required: true, type: Number, description: 'Number of articles per page' })
     @Get()
-    async getArticlesByFilter(@Request() req, @Res() res: Response) {
+    async getArticlesByFilter(
+        @Query() queryParams: IArticleFilterParams & IArticleSortParams & IPaginationParams,
+        @Request() req,
+        @Res() res: Response,
+    ) {
         const userId: string = req.user.id as string;
 
         if (!userId) {
@@ -44,7 +99,7 @@ export class ArticleManagementController {
         }
 
         try {
-            const result = await this.articleManagementService.getArticlesByFilterAsync(userId);
+            const result = await this.articleManagementService.getArticlesByFilterAsync(userId, queryParams);
 
             return res.status(HttpStatus.OK).json(result);
         } catch (error) {
