@@ -21,6 +21,14 @@ export class ArticleService {
     async getArticlesByFilterAsync(
         queryParams: IArticleFilterParams & IArticleSortParams & IPaginationParams,
     ): Promise<PaginatedResult<ArticleDto>> {
+        const articlesCacheKey = `articles_${JSON.stringify(queryParams)}`;
+
+        const cachedData = await this.cacheService.getCache<PaginatedResult<ArticleDto>>(articlesCacheKey);
+
+        if (cachedData) {
+            return cachedData;
+        }
+
         const filter: IArticleFilterParams = {
             name: queryParams.name,
             description: queryParams.description,
@@ -89,12 +97,16 @@ export class ArticleService {
             .skip(((pagination.page || 1) - 1) * (pagination.limit || 10))
             .getManyAndCount();
 
-        return {
+        const result: PaginatedResult<ArticleDto> = {
             data: this.mapper.mapArray(articles, ArticleEntity, ArticleDto),
             total,
             page: pagination.page,
             limit: pagination.limit,
         };
+
+        await this.cacheService.setCache(articlesCacheKey, result);
+
+        return result;
     }
 
     async getArticleByIdAsync(id: string): Promise<ArticleDto> {

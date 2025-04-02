@@ -13,6 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ArticleCreateDto, ArticleDeletedDto, ArticleDto, ArticleUpdateDto } from './dto/article.dto';
 import { IArticleFilterParams, IArticleSortParams, IPaginationParams } from './types/filters.type';
 import { PaginatedResult } from '../../types/pagination.type';
+import { CacheRedisService } from '../cache-redis/cache-redis.service';
 
 @Injectable()
 export class ArticleManagementService {
@@ -22,6 +23,7 @@ export class ArticleManagementService {
         @InjectRepository(UserEntity)
         private userEntityRepository: Repository<UserEntity>,
         @InjectMapper() private readonly mapper: Mapper,
+        private readonly cacheService: CacheRedisService,
     ) {}
 
     async getArticlesByFilterAsync(
@@ -110,8 +112,6 @@ export class ArticleManagementService {
             },
         });
 
-        console.log('getArticleByIdAsync /existArticle', existArticle);
-
         if (!existArticle) {
             throw new NotFoundException();
         }
@@ -155,8 +155,6 @@ export class ArticleManagementService {
             },
         });
 
-        console.log('updateArticleAsync /existArticle', existArticle);
-
         if (!existArticle) {
             throw new NotFoundException();
         }
@@ -171,8 +169,8 @@ export class ArticleManagementService {
                 ...articleUpdateDto,
             });
 
-            console.log('updateArticleAsync /articleUpdated', articleUpdated);
-
+            await this.cacheService.clearCache();
+            
             return this.mapper.map(articleUpdated, ArticleEntity, ArticleDto);
         } catch (err) {
             throw new InternalServerErrorException(err.message);
@@ -189,8 +187,6 @@ export class ArticleManagementService {
             },
         });
 
-        console.log('deleteArticleAsync /existArticle', existArticle);
-
         if (!existArticle) {
             throw new NotFoundException();
         }
@@ -201,6 +197,8 @@ export class ArticleManagementService {
 
         try {
             await this.articleEntityRepository.delete(id);
+
+            await this.cacheService.clearCache();
 
             return {
                 id: existArticle.id,
