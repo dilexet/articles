@@ -5,10 +5,12 @@ import { ArticleService } from './article.service';
 import { ArticleEntity, UserEntity } from '../../database';
 import { ConfigModule } from '@nestjs/config';
 import { ArticleMapperProfile } from './mappers/article.mapper-profile';
+import { CacheRedisService } from '../cache-redis/cache-redis.service';
+import { CacheRedisModule } from '../cache-redis/cache-redis.module';
 
 @Module({
-    imports: [ConfigModule, TypeOrmModule.forFeature([UserEntity, ArticleEntity])],
+    imports: [ConfigModule, TypeOrmModule.forFeature([UserEntity, ArticleEntity]), CacheRedisModule],
     controllers: [ArticleController],
-    providers: [ArticleMapperProfile, ArticleService],
+    providers: [ArticleMapperProfile, CacheRedisService, ArticleService],
 })
 export class ArticleModule {}

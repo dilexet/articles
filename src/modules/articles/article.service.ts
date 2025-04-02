@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ArticleDto } from './dto/article.dto';
 import { IArticleFilterParams, IArticleSortParams, IPaginationParams } from './types/filters.type';
 import { PaginatedResult } from '../../types/pagination.type';
+import { CacheRedisService } from '../cache-redis/cache-redis.service';
 
 @Injectable()
 export class ArticleService {
@@ -14,6 +15,7 @@ export class ArticleService {
         @InjectRepository(ArticleEntity)
         private articleEntityRepository: Repository<ArticleEntity>,
         @InjectMapper() private readonly mapper: Mapper,
+        private readonly cacheService: CacheRedisService,
     ) {}
 
     async getArticlesByFilterAsync(
@@ -96,6 +98,14 @@ export class ArticleService {
     }
 
     async getArticleByIdAsync(id: string): Promise<ArticleDto> {
+        const articleCacheKey = `article_${id}`;
+
+        const cachedArticle = await this.cacheService.getCache<ArticleDto>(articleCacheKey);
+
+        if (cachedArticle) {
+            return cachedArticle;
+        }
+
         const existArticle = await this.articleEntityRepository.findOne({
             where: {
                 id,
@@ -109,6 +119,10 @@ export class ArticleService {
             throw new NotFoundException();
         }
 
-        return this.mapper.map(existArticle, ArticleEntity, ArticleDto);
+        const mappedArticle = this.mapper.map(existArticle, ArticleEntity, ArticleDto);
+
+        await this.cacheService.setCache(articleCacheKey, mappedArticle);
+
+        return mappedArticle;
     }
 }
