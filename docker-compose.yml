@@ -1,0 +1,84 @@
+version: "3"
+services:
+
+  api_dev:
+    container_name: article_api_dev
+    image: article-api-dev:1.0.0
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    networks:
+      - nestjs-network
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/usr/src/app
+      - ./app:/usr/src/app/node_modules
+    env_file:
+      - ./.env.docker
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    container_name: postgres_db
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: articles_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    networks:
+      - nestjs-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgres-data:/var/lib/postgresql/data
+    env_file:
+      - ./.env.docker
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    hostname: redis
+    restart: always
+    networks:
+      - nestjs-network
+    environment:
+      ALLOW_EMPTY_PASSWORD: yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis-data:/data
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    networks:
+      - nestjs-network
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - '5050:80'
+    env_file:
+      - ./.env.docker
+    depends_on:
+      - postgres
+
+  redis-commander:
+    container_name: article_redis_commander
+    image: rediscommander/redis-commander
+    restart: always
+    networks:
+      - nestjs-network
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+
+networks:
+  nestjs-network:
+    driver: bridge
